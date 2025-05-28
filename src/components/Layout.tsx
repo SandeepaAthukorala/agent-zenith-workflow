@@ -4,8 +4,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Bell, User, LogOut, Moon, Sun, Menu } from 'lucide-react';
+import { Bell, User, LogOut, Moon, Sun, Menu, Database } from 'lucide-react';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import NotificationDropdown from '@/components/NotificationDropdown';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -14,6 +16,7 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   
   const brandName = import.meta.env.VITE_BRAND_NAME || 'InsuraGo';
@@ -32,7 +35,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             >
               <Menu className="h-5 w-5" />
             </Button>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 cursor-pointer" onClick={() => navigate('/')}>
               <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-sm">I</span>
               </div>
@@ -43,12 +46,25 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
 
           <div className="flex items-center space-x-2">
+            {user?.role === 'admin' && (
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => navigate('/admin/tables')}
+                className="hidden sm:flex"
+              >
+                <Database className="h-4 w-4 mr-2" />
+                Manage Data
+              </Button>
+            )}
             <Button variant="ghost" size="sm" onClick={toggleTheme}>
               {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </Button>
-            <Button variant="ghost" size="sm">
-              <Bell className="h-4 w-4" />
-            </Button>
+            <NotificationDropdown>
+              <Button variant="ghost" size="sm">
+                <Bell className="h-4 w-4" />
+              </Button>
+            </NotificationDropdown>
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-insurance-orange-500 rounded-full flex items-center justify-center">
                 <User className="h-4 w-4 text-white" />

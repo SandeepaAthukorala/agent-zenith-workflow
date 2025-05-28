@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,9 +13,14 @@ import {
   Plus,
   Calendar
 } from 'lucide-react';
+import PolicyModal from '@/components/PolicyModal';
+import AssignedCustomersTable from '@/components/AssignedCustomersTable';
+import { useToast } from '@/hooks/use-toast';
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
+  const { toast } = useToast();
+  const [isPolicyModalOpen, setIsPolicyModalOpen] = useState(false);
 
   const stats = [
     { title: 'Active Policies', value: '1,247', icon: FileText, change: '+12%' },
@@ -37,6 +41,27 @@ const Dashboard: React.FC = () => {
     { id: 2, task: 'Process pending claims', time: '2:00 PM', priority: 'medium' },
     { id: 3, task: 'Team meeting - Weekly review', time: '4:00 PM', priority: 'low' },
   ];
+
+  const handleNewClaim = () => {
+    toast({
+      title: "New Claim",
+      description: "Opening claim creation form...",
+    });
+  };
+
+  const handleCheckLocation = () => {
+    toast({
+      title: "Location Check",
+      description: "Opening location tracking interface...",
+    });
+  };
+
+  const handleTeamStatus = () => {
+    toast({
+      title: "Team Status",
+      description: "Opening team management dashboard...",
+    });
+  };
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -69,6 +94,11 @@ const Dashboard: React.FC = () => {
           </Card>
         ))}
       </div>
+
+      {/* Agent-specific table */}
+      {user?.role === 'agent' && (
+        <AssignedCustomersTable />
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Activities */}
@@ -130,7 +160,7 @@ const Dashboard: React.FC = () => {
         </Card>
       </div>
 
-      {/* Quick Actions */}
+      {/* Quick Actions with working buttons */}
       <Card className="glass-card">
         <CardHeader>
           <CardTitle>Quick Actions</CardTitle>
@@ -138,25 +168,44 @@ const Dashboard: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Button className="h-20 flex-col space-y-2 gradient-primary hover:opacity-90">
+            <Button 
+              className="h-20 flex-col space-y-2 gradient-primary hover:opacity-90"
+              onClick={() => setIsPolicyModalOpen(true)}
+            >
               <Plus className="h-6 w-6" />
               <span className="text-sm">New Policy</span>
             </Button>
-            <Button className="h-20 flex-col space-y-2 gradient-secondary hover:opacity-90">
+            <Button 
+              className="h-20 flex-col space-y-2 gradient-secondary hover:opacity-90"
+              onClick={handleNewClaim}
+            >
               <FileText className="h-6 w-6" />
               <span className="text-sm">New Claim</span>
             </Button>
-            <Button variant="outline" className="h-20 flex-col space-y-2">
+            <Button 
+              variant="outline" 
+              className="h-20 flex-col space-y-2"
+              onClick={handleCheckLocation}
+            >
               <MapPin className="h-6 w-6" />
               <span className="text-sm">Check Location</span>
             </Button>
-            <Button variant="outline" className="h-20 flex-col space-y-2">
+            <Button 
+              variant="outline" 
+              className="h-20 flex-col space-y-2"
+              onClick={handleTeamStatus}
+            >
               <Users className="h-6 w-6" />
               <span className="text-sm">Team Status</span>
             </Button>
           </div>
         </CardContent>
       </Card>
+
+      <PolicyModal 
+        open={isPolicyModalOpen} 
+        onOpenChange={setIsPolicyModalOpen} 
+      />
     </div>
   );
 };
